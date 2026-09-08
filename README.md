@@ -291,11 +291,13 @@ from one list, so they cannot drift apart.
 | `page*.html` | UI templates, each with inlining markers |
 | `build.js` | writes `artifact*.html` and `docs/**/index.html` |
 | `test.js` … `test5.js` | determinism, agreement, round trips, collision maths |
+| `test-pages.js` | runs every page's own script against a stub DOM, so a page that throws is caught |
 | `grind.js` | v1 deliberate-forgery cost |
 | `preview*.js` | contact sheets |
 
 ```
 node test.js && node test2.js && node test3.js && node test4.js && node test5.js
+node test-pages.js                              # the pages, not just the modules
 node grind.js                                   # v1 forgery cost
 node preview.js && node preview2.js && node preview3.js && node preview4.js
 node preview5.js && node preview5.js preview5-species.png species
