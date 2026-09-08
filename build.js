@@ -24,3 +24,5 @@ build('page.html',  [['<!--PIXELPET-->', 'pixelpet.js']], 'artifact.html',  'doc
 build('page2.html', [['<!--WORDPET2-->', 'wordpet2.js']],  'artifact2.html', 'docs/v2/index.html');
 build('page3.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET3-->', 'wordpet3.js']],
                     'artifact3.html', 'docs/v3/index.html');
+build('page4.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET3-->', 'wordpet3.js'],
+                     ['<!--WORDPET4-->', 'wordpet4.js']], 'artifact4.html', 'docs/v4/index.html');

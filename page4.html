@@ -1,4 +1,4 @@
-<title>Wordpet v3</title>
+<title>Wordpet v4</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap">
 <style>
@@ -44,15 +44,17 @@
   #q:focus { border-color:var(--live); box-shadow:0 0 0 3px color-mix(in srgb, var(--live) 22%, transparent); }
 
   .terrarium { background:var(--stage); border:1px solid var(--line); border-radius:6px;
-               overflow:hidden; box-shadow:var(--shadow); }
+               overflow:hidden; box-shadow:var(--shadow); max-width:384px; }
   #stage { display:block; width:100%; height:auto; image-rendering:pixelated; }
+  .short { font:400 17px/1.4 "IBM Plex Sans",sans-serif; color:var(--ink); }
+  .short b { font-weight:600; }
 
   .card { background:var(--surface); border:1px solid var(--line); border-radius:4px; }
 
   .ident { border-left:3px solid var(--live); padding:20px 22px;
            display:flex; flex-direction:column; gap:16px; }
   .petname { font:400 15px/1 "Silkscreen","IBM Plex Mono",monospace; color:var(--live); }
-  #emojiline { font-size:32px; line-height:1.25; letter-spacing:6px; word-break:break-word; }
+  #emojiline { font-size:29px; line-height:1.3; letter-spacing:5px; word-break:break-word; }
 
   /* the correspondence itself: one row per slot, emoji beside the words it means */
   .slots { display:grid; grid-template-columns:auto auto 1fr; gap:0; }
@@ -89,7 +91,7 @@
                 font:400 10px/1.2 "IBM Plex Mono",monospace; cursor:pointer;
                 text-align:center; word-break:break-word; }
   #gal button:hover, #gal button:focus-visible { border-color:var(--live); color:var(--ink); outline:none; }
-  #gal canvas { image-rendering:pixelated; display:block; width:72px; height:72px; }
+  #gal canvas { image-rendering:pixelated; display:block; width:72px; height:72px; border-radius:3px; }
   #gal .em { font-size:13px; letter-spacing:0; }
 
   .note { color:var(--muted); font-size:13px; line-height:1.66; margin:0; max-width:64ch; }
@@ -99,10 +101,11 @@
 
 <div class="page">
   <header class="mast">
-    <h1>word<b>pet</b><span>v3</span></h1>
-    <p>The picture, the sentence and the emoji all say the same thing. Five slots, five emoji
-       groups, five pieces of the drawing. Read whichever you like, in whatever language you
-       speak. <a href="../v4/">v4</a> adds four more slots and a place to stand; <a href="../v2/">v2</a> and <a href="../">v1</a> are still here.</p>
+    <h1>word<b>pet</b><span>v4</span></h1>
+    <p>The picture, the sentence and the emoji all say the same thing. Eight slots now, plus a
+       place to stand, something worn, both hands full and a small companion. Read whichever view
+       you like, in whatever language you speak.
+       <a href="../v3/">v3</a>, <a href="../v2/">v2</a> and <a href="../">v1</a> are still here.</p>
   </header>
 
   <form class="entry" onsubmit="return false">
@@ -110,11 +113,12 @@
     <input id="q" value="emino" spellcheck="false" autocomplete="off" autocapitalize="off">
   </form>
 
-  <div class="terrarium"><canvas id="stage" width="432" height="312"></canvas></div>
+  <div class="terrarium"><canvas id="stage" width="384" height="384"></canvas></div>
 
   <section class="card ident">
     <div class="petname" id="petname"></div>
     <div id="emojiline"></div>
+    <div class="short" id="shortphrase"></div>
     <div class="slots" id="slots"></div>
     <p id="phrase"></p>
   </section>
@@ -130,9 +134,9 @@
     <div class="col">
       <span class="k">At avatar size</span>
       <div class="strip">
-        <canvas class="thumb" width="48" height="48" style="width:24px;height:24px"></canvas>
-        <canvas class="thumb" width="48" height="48" style="width:40px;height:40px"></canvas>
-        <canvas class="thumb" width="48" height="48" style="width:72px;height:72px"></canvas>
+        <canvas class="thumb" width="64" height="64" style="width:28px;height:28px"></canvas>
+        <canvas class="thumb" width="64" height="64" style="width:44px;height:44px"></canvas>
+        <canvas class="thumb" width="64" height="64" style="width:72px;height:72px"></canvas>
       </div>
     </div>
     <div class="col">
@@ -148,13 +152,13 @@
 
   <p class="note">
     Nothing is drawn that the words do not name, and nothing is named that has no emoji. The tests
-    prove it by rebuilding the traits from the sentence alone and from the emoji alone and checking
-    both against the original, on 150,000 pets.
-    That rule costs range: the vocabulary shrinks to what can be drawn <strong>and</strong> said
-    <strong>and</strong> given an unmistakable emoji, so there are 46,559,232 identities here against
-    559 million in v2. The seal puts the bits back, and only the two together are worth gating a
-    payment on. <strong>A wrong pet means stop. A right pet is still not proof, so check the
-    address too.</strong>
+    rebuild the traits from the sentence alone and from the emoji alone and check both against the
+    original, on 120,000 pets.
+    Four extra slots over v3 take this from 46 million identities to 2,305,071,267,840, so the
+    three-way rule no longer costs security. Forging one that survives a full reading takes about
+    115 days on one core, or 16 minutes on hardware ten thousand times faster, which is why the
+    seal is still here: with it, 71 years even at that rate.
+    <strong>A wrong pet means stop. A right pet is still not proof, so check the address too.</strong>
   </p>
 </div>
 
@@ -165,26 +169,20 @@
 <!--WORDPET3-->
 </script>
 <script>
+<!--WORDPET4-->
+</script>
+<script>
 (function () {
   'use strict';
-  var V3 = window.Wordpet3;
-  var SC = 6, SW = 72;
+  var V4 = window.Wordpet4;
+  var SC = 6;
   var stage = document.getElementById('stage'), ctx = stage.getContext('2d');
   var input = document.getElementById('q');
   var thumbs = [].slice.call(document.querySelectorAll('.thumb'));
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  var theme = { floor: '#d3ccbd' };
-  function readTheme() {
-    var cs = getComputedStyle(document.documentElement);
-    theme.floor = cs.getPropertyValue('--floor').trim() || theme.floor;
-  }
-  readTheme();
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
-  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
   function toCanvas(buf, cv) {
-    var c = cv.getContext('2d'), img = c.createImageData(V3.W, V3.H), d = img.data;
+    var c = cv.getContext('2d'), img = c.createImageData(V4.W, V4.H), d = img.data;
     for (var i = 0; i < buf.length; i++) {
       var v = buf[i];
       if (!v) continue;
@@ -193,22 +191,26 @@
       d[i * 4 + 2] = parseInt(v.slice(5, 7), 16);
       d[i * 4 + 3] = 255;
     }
-    c.clearRect(0, 0, V3.W, V3.H);
+    c.clearRect(0, 0, V4.W, V4.H);
     c.putImageData(img, 0, 0);
     return cv;
   }
   function sprite(t, phase, blink) {
     var cv = document.createElement('canvas');
-    cv.width = V3.W; cv.height = V3.H;
-    return toCanvas(V3.render(t, phase, blink), cv);
+    cv.width = V4.W; cv.height = V4.H;
+    return toCanvas(V4.render(t, phase, blink), cv);
   }
 
   var pet = null;
   function hatch(words) {
-    var t = V3.traitsFor(words);
+    var t = V4.traitsFor(words);
     pet = { t: t,
+      scene: toCanvas(V4.renderScene(t), Object.assign(document.createElement('canvas'), { width: V4.W, height: V4.H })),
       frames: [0, 1, 2, 3].map(function (p) { return sprite(t, p, false); }),
       blinks: [0, 1, 2, 3].map(function (p) { return sprite(t, p, true); }) };
+    document.getElementById('shortphrase').innerHTML = '';
+    var sh = document.createElement('b'); sh.textContent = t.shortPhrase;
+    document.getElementById('shortphrase').appendChild(sh);
     document.documentElement.style.setProperty('--live', t.col.hat);
     document.getElementById('petname').textContent = t.petName;
     document.getElementById('emojiline').textContent = t.emojiLine;
@@ -237,39 +239,23 @@
       ph.appendChild(node);
     });
 
-    thumbs.forEach(function (cv) { toCanvas(V3.render(t, 0, false), cv); });
+    thumbs.forEach(function (cv) { toCanvas(V4.renderFull(t, 0, false), cv); });
   }
 
   function draw(now) {
     var t = pet.t, still = reduce.matches;
     var f = still ? 0 : (now / 1050) % 1;
-    var m = V3.motion(t, f);
+    var m = V4.motion(t, f);
     var phase = Math.floor(f * 4) & 3;
     var blinkEvery = 2700 + (t.species % 7) * 340;
     var blink = !still && (now % blinkEvery) < 140;
-
-    var span = (SW - V3.W) / 2, w = still ? 0 : now / 3400 + t.species;
-    var wx = span + Math.sin(w) * span * 0.7;
-    var dir = still ? 1 : (Math.cos(w) >= 0 ? 1 : -1);
+    var sway = still ? 0 : Math.round(Math.sin(now / 2600 + t.species) * 3);
 
     ctx.clearRect(0, 0, stage.width, stage.height);
-    ctx.fillStyle = theme.floor;
-    ctx.fillRect(0, 49 * SC, stage.width, stage.height - 49 * SC);
-
-    var px = Math.round(wx + m.dx), py = Math.round(3 + m.dy);
-    ctx.globalAlpha = 0.55;
-    ctx.beginPath();
-    ctx.ellipse((px + 24) * SC, 49 * SC, (10 + m.dy * 0.3) * SC, 1.5 * SC, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-
     ctx.imageSmoothingEnabled = false;
-    ctx.save();
-    ctx.translate((px + 24) * SC, (py + 24) * SC);
-    ctx.scale(dir * m.sx, m.sy);
-    ctx.rotate(m.rot);
-    ctx.drawImage((blink ? pet.blinks : pet.frames)[phase], -24 * SC, -24 * SC, V3.W * SC, V3.H * SC);
-    ctx.restore();
+    ctx.drawImage(pet.scene, 0, 0, V4.W * SC, V4.H * SC);
+    ctx.drawImage((blink ? pet.blinks : pet.frames)[phase],
+      sway * SC, Math.round(m.dy) * SC, V4.W * SC, V4.H * SC);
 
     requestAnimationFrame(draw);
   }
@@ -280,14 +266,14 @@
                  'walter', 'zoe', '0x758a', 'blue-panda', 'midnight-koi', 'eminö'];
   var gal = document.getElementById('gal');
   samples.forEach(function (word) {
-    var t = V3.traitsFor(word);
+    var t = V4.traitsFor(word);
     var btn = document.createElement('button');
     btn.type = 'button';
     var cv = document.createElement('canvas');
-    cv.width = V3.W; cv.height = V3.H;
-    toCanvas(V3.render(t, 0, false), cv);
+    cv.width = V4.W; cv.height = V4.H;
+    toCanvas(V4.renderFull(t, 0, false), cv);
     var em = document.createElement('span');
-    em.className = 'em'; em.textContent = t.emojiLine;
+    em.className = 'em'; em.textContent = t.emojiGroups.slice(0, 4).map(function (g) { return g.emoji; }).join('');
     var cap = document.createElement('span');
     cap.textContent = word;
     btn.appendChild(cv); btn.appendChild(em); btn.appendChild(cap);

@@ -177,6 +177,25 @@ function hsl(h, s, l) {
 }
 function shade(col, dl) { return hsl(col.h, col.s, col.l + dl); }
 
+/* Where the parts of a species land, so a later version can draw on top of a rendered pet
+   without guessing.  Pure: reading it changes nothing. */
+function anatomy(speciesIdx, sw) {
+  var sp = SPECIES[speciesIdx];
+  sw = sw || 0;
+  var bcy = BASE_BCY - (sp.lift || 0), bw = sp.bw, bh = sp.bh;
+  var bodyTop = bcy - bh, bodyBot = bcy + bh;
+  var headCy = bodyTop - sp.neck - sp.hy + 2.5;
+  var ay = bcy - 1, hands;
+  if (sp.limb === 2) hands = [[CX - bw - 2, bcy + 3], [CX + bw + 2, bcy + 3]];
+  else if (sp.limb === 1) hands = [[CX - (bw + 0.6), ay + 5], [CX + (bw + 0.6), ay + 5]];
+  else hands = [[CX - (bw + 0.6), ay + 4.6 - sw * 0.9], [CX + (bw + 0.6), ay + 4.6 + sw * 0.9]];
+  return {
+    CX: CX, W: W, H: H, bw: bw, bh: bh, bcy: bcy, bodyTop: bodyTop, bodyBot: bodyBot,
+    headCy: headCy, hr: sp.hr, hy: sp.hy, neck: sp.neck, limb: sp.limb, sits: !!sp.sits,
+    hands: hands, foot: FOOT, ground: GROUND
+  };
+}
+
 /* the full colour set a drawing needs, from three palette indices */
 function paletteFor(bodyIdx, hatIdx, shoeIdx) {
   var base = COLOURS[bodyIdx], hc = COLOURS[hatIdx], sc = COLOURS[shoeIdx];
@@ -517,7 +536,7 @@ function motion(t, f) {
 
 var api = {
   W: W, H: H, version: 2, normalize: normalize, sha256: sha256,
-  traitsFor: traitsFor, render: render, motion: motion, paletteFor: paletteFor, phraseOf: phraseOf, segmentsOf: segmentsOf,
+  traitsFor: traitsFor, render: render, motion: motion, paletteFor: paletteFor, anatomy: anatomy, phraseOf: phraseOf, segmentsOf: segmentsOf,
   COLOURS: COLOURS, SPECIES: SPECIES, PATTERNS: PATTERNS, EYES: EYES,
   HATS: HATS, SHOES: SHOES, ITEMS: ITEMS, MOVES: MOVES, EMOJI: EMOJI, ACCENTS: ACCENTS
 };
