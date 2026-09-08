@@ -1,0 +1,271 @@
+<title>Wordpet v2</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap">
+<style>
+  :root {
+    color-scheme: light dark;
+    --paper:  #f1eee7;
+    --surface:#fffdf9;
+    --stage:  #e5e0d5;
+    --floor:  #d3ccbd;
+    --ink:    #16151b;
+    --muted:  #6a6558;
+    --line:   #dcd5c8;
+    --live:   #7a6cff;
+    --shadow: 0 1px 0 rgba(22,21,27,.05), 0 10px 26px -16px rgba(22,21,27,.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:  #111116; --surface:#1a1a22; --stage:#222230; --floor:#2d2d3d;
+      --ink:#eae7f1; --muted:#9a95a7; --line:#2f2f3d;
+      --shadow: 0 1px 0 rgba(0,0,0,.4), 0 12px 30px -18px #000;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:  #111116; --surface:#1a1a22; --stage:#222230; --floor:#2d2d3d;
+    --ink:#eae7f1; --muted:#9a95a7; --line:#2f2f3d;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 12px 30px -18px #000;
+  }
+
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font: 400 16px/1.6 "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+         -webkit-font-smoothing: antialiased; }
+  .page { max-width: 740px; margin: 0 auto; padding: 40px 20px 64px;
+          display: flex; flex-direction: column; gap: 26px; }
+
+  .mast { display: flex; flex-direction: column; gap: 8px; }
+  .mast h1 { font: 400 30px/1 "Silkscreen", "IBM Plex Mono", monospace; margin: 0; letter-spacing: .02em; }
+  .mast h1 b { color: var(--live); font-weight: 400; }
+  .mast h1 span { font-size: 15px; color: var(--muted); margin-left: 8px; letter-spacing: 0; }
+  .mast p { margin: 0; color: var(--muted); max-width: 56ch; }
+  .mast a { color: var(--ink); }
+
+  .entry { display: flex; flex-direction: column; gap: 8px; }
+  .entry label, .k { font: 600 11px/1 "IBM Plex Mono", monospace; letter-spacing: .14em;
+                     text-transform: uppercase; color: var(--muted); }
+  #q { font: 400 20px/1.3 "IBM Plex Mono", ui-monospace, monospace; color: var(--ink);
+       background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+       padding: 13px 15px; width: 100%; outline: none; }
+  #q:focus { border-color: var(--live); box-shadow: 0 0 0 3px color-mix(in srgb, var(--live) 22%, transparent); }
+
+  .terrarium { background: var(--stage); border: 1px solid var(--line); border-radius: 6px;
+               overflow: hidden; box-shadow: var(--shadow); }
+  #stage { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+
+  /* the phrase is the identity, so it gets the weight */
+  .say { display: flex; flex-direction: column; gap: 14px; padding: 20px 22px;
+         background: var(--surface); border: 1px solid var(--line);
+         border-left: 3px solid var(--live); border-radius: 4px; }
+  .petname { font: 400 15px/1 "Silkscreen", "IBM Plex Mono", monospace; color: var(--live); }
+  #phrase { font: 400 25px/1.34 "IBM Plex Sans", sans-serif; margin: 0; text-wrap: balance; }
+  #phrase em { font-style: normal; font-weight: 600;
+               border-bottom: 2px solid color-mix(in srgb, var(--live) 45%, transparent); }
+  .trio { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  #emoji { font-size: 30px; line-height: 1.1; letter-spacing: 8px; }
+  #fp { font: 400 12px/1.5 "IBM Plex Mono", ui-monospace, monospace;
+        font-variant-numeric: tabular-nums; word-break: break-all; color: var(--muted); }
+
+  .strip { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .strip canvas { image-rendering: pixelated; display: block; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+
+  .gallery { display: flex; flex-direction: column; gap: 12px; }
+  .gallery h2 { font: 600 11px/1 "IBM Plex Mono", monospace; letter-spacing: .14em;
+                text-transform: uppercase; color: var(--muted); margin: 0; }
+  #gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+  #gal button { display: flex; flex-direction: column; align-items: center; gap: 5px;
+                padding: 8px 4px 9px; background: var(--surface); border: 1px solid var(--line);
+                border-radius: 5px; color: var(--muted);
+                font: 400 10px/1.2 "IBM Plex Mono", monospace; cursor: pointer;
+                text-align: center; word-break: break-word; }
+  #gal button:hover, #gal button:focus-visible { border-color: var(--live); color: var(--ink); outline: none; }
+  #gal canvas { image-rendering: pixelated; display: block; width: 72px; height: 72px; }
+  #gal .em { font-size: 12px; letter-spacing: 1px; }
+
+  .note { color: var(--muted); font-size: 13px; line-height: 1.66; margin: 0; max-width: 64ch; }
+  .note code { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink); }
+  .note strong { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="page">
+  <header class="mast">
+    <h1>word<b>pet</b><span>v2</span></h1>
+    <p>Every part of the pet has a name, so you can say your identity out loud instead of
+       comparing pixels. The picture and the sentence come from the same hash and can never
+       disagree. <a href="../">Version 1 is still here.</a></p>
+  </header>
+
+  <form class="entry" onsubmit="return false">
+    <label for="q">Username or address</label>
+    <input id="q" value="emino" spellcheck="false" autocomplete="off" autocapitalize="off">
+  </form>
+
+  <div class="terrarium"><canvas id="stage" width="432" height="312"></canvas></div>
+
+  <section class="say">
+    <div class="petname" id="petname"></div>
+    <p id="phrase"></p>
+    <div class="trio">
+      <span class="k">Code</span>
+      <span id="emoji"></span>
+    </div>
+    <div class="col">
+      <span class="k">SHA-256</span>
+      <code id="fp"></code>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="col">
+      <span class="k">At avatar size</span>
+      <div class="strip">
+        <canvas class="thumb" width="48" height="48" style="width:24px;height:24px"></canvas>
+        <canvas class="thumb" width="48" height="48" style="width:40px;height:40px"></canvas>
+        <canvas class="thumb" width="48" height="48" style="width:72px;height:72px"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <section class="gallery">
+    <h2>Try a few</h2>
+    <div id="gal"></div>
+  </section>
+
+  <p class="note">
+    Case and punctuation are folded, so <code>Blue Panda</code> and <code>blue-panda</code> are one pet.
+    Letters are <strong>not</strong> folded: <code>eminö</code> and <code>emino</code> are different people
+    and get different pets, which is the whole point of a lookalike check.
+    The name is hashed with SHA-256 and the digest is sliced into independent fields. The phrase reads
+    one set of bits; the three-emoji code reads a set the phrase never touches, so matching one does not
+    hand an attacker the other.
+    There are 559,054,848 phrases and 4,410,780 emoji codes, about 51 bits together.
+    <strong>Check both, and check the address too.</strong> A pet that looks right is not proof; a pet that
+    looks wrong is a reason to stop.
+  </p>
+</div>
+
+<script>
+<!--WORDPET2-->
+</script>
+<script>
+(function () {
+  'use strict';
+  var V2 = window.Wordpet2;
+  var SC = 6, SW = 72, SH = 52;
+  var stage = document.getElementById('stage'), ctx = stage.getContext('2d');
+  var input = document.getElementById('q');
+  var thumbs = [].slice.call(document.querySelectorAll('.thumb'));
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  var theme = { floor: '#d3ccbd' };
+  function readTheme() {
+    var cs = getComputedStyle(document.documentElement);
+    theme.floor = cs.getPropertyValue('--floor').trim() || theme.floor;
+  }
+  readTheme();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  function toCanvas(buf, cv) {
+    var c = cv.getContext('2d'), img = c.createImageData(V2.W, V2.H), d = img.data;
+    for (var i = 0; i < buf.length; i++) {
+      var v = buf[i];
+      if (!v) continue;
+      d[i * 4] = parseInt(v.slice(1, 3), 16);
+      d[i * 4 + 1] = parseInt(v.slice(3, 5), 16);
+      d[i * 4 + 2] = parseInt(v.slice(5, 7), 16);
+      d[i * 4 + 3] = 255;
+    }
+    c.clearRect(0, 0, V2.W, V2.H);
+    c.putImageData(img, 0, 0);
+    return cv;
+  }
+  function sprite(t, phase, blink) {
+    var cv = document.createElement('canvas');
+    cv.width = V2.W; cv.height = V2.H;
+    return toCanvas(V2.render(t, phase, blink), cv);
+  }
+
+  /* the highlighted words come from the same segments the sentence is built from */
+  function renderPhrase(t, el) {
+    el.textContent = '';
+    t.segments.forEach(function (s) {
+      var node = document.createElement(s.trait ? 'em' : 'span');
+      node.textContent = s.text;
+      el.appendChild(node);
+    });
+  }
+
+  var pet = null;
+  function hatch(words) {
+    var t = V2.traitsFor(words);
+    pet = { t: t,
+      frames: [0, 1, 2, 3].map(function (p) { return sprite(t, p, false); }),
+      blinks: [0, 1, 2, 3].map(function (p) { return sprite(t, p, true); }) };
+    document.documentElement.style.setProperty('--live', t.col.hat);
+    document.getElementById('petname').textContent = t.petName;
+    renderPhrase(t, document.getElementById('phrase'));
+    document.getElementById('emoji').textContent = t.emoji.join(' ');
+    document.getElementById('fp').textContent = t.fingerprint.replace(/(.{32})/g, '$1 ').trim();
+    thumbs.forEach(function (cv) { toCanvas(V2.render(t, 0, false), cv); });
+  }
+
+  function draw(now) {
+    var t = pet.t, still = reduce.matches;
+    var f = still ? 0 : (now / 1050) % 1;
+    var m = V2.motion(t, f);
+    var phase = Math.floor(f * 4) & 3;
+    var blinkEvery = 2700 + (t.species % 7) * 340;
+    var blink = !still && (now % blinkEvery) < 140;
+
+    var span = (SW - V2.W) / 2, w = still ? 0 : now / 3400 + t.species;
+    var wx = span + Math.sin(w) * span * (t.move === 5 || t.move === 3 ? 1 : 0.6);
+    var dir = still ? 1 : (Math.cos(w) >= 0 ? 1 : -1);
+
+    ctx.clearRect(0, 0, stage.width, stage.height);
+    ctx.fillStyle = theme.floor;
+    ctx.fillRect(0, 49 * SC, stage.width, stage.height - 49 * SC);
+
+    var px = Math.round(wx + m.dx), py = Math.round(3 + m.dy);
+    ctx.globalAlpha = 0.55;
+    ctx.beginPath();
+    ctx.ellipse((px + 24) * SC, 49 * SC, (10 + m.dy * 0.3) * SC, 1.5 * SC, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.save();
+    ctx.translate((px + 24) * SC, (py + 24) * SC);
+    ctx.scale(dir * m.sx, m.sy);
+    ctx.rotate(m.rot);
+    ctx.drawImage((blink ? pet.blinks : pet.frames)[phase], -24 * SC, -24 * SC, V2.W * SC, V2.H * SC);
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+
+  input.addEventListener('input', function () { hatch(input.value); });
+
+  var samples = ['emino', 'nuri', 'alice', 'bob', 'satoshi', 'grace',
+                 '0x758a', 'blue-panda', 'diving-crow', 'quantum-tapir', 'midnight-koi', 'eminö'];
+  var gal = document.getElementById('gal');
+  samples.forEach(function (word) {
+    var t = V2.traitsFor(word);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    var cv = document.createElement('canvas');
+    cv.width = V2.W; cv.height = V2.H;
+    toCanvas(V2.render(t, 0, false), cv);
+    var em = document.createElement('span');
+    em.className = 'em'; em.textContent = t.emoji.join('');
+    var cap = document.createElement('span');
+    cap.textContent = word;
+    btn.appendChild(cv); btn.appendChild(em); btn.appendChild(cap);
+    btn.addEventListener('click', function () { input.value = word; hatch(word); input.focus(); });
+    gal.appendChild(btn);
+  });
+
+  hatch(input.value);
+  requestAnimationFrame(draw);
+})();
+</script>
