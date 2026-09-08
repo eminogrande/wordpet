@@ -26,3 +26,5 @@ build('page3.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET3-->', 'wo
                     'artifact3.html', 'docs/v3/index.html');
 build('page4.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET3-->', 'wordpet3.js'],
                      ['<!--WORDPET4-->', 'wordpet4.js']], 'artifact4.html', 'docs/v4/index.html');
+build('page5.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET5-->', 'wordpet5.js']],
+                    'artifact5.html', 'docs/v5/index.html');

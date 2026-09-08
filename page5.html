@@ -1,4 +1,4 @@
-<title>Wordpet v4</title>
+<title>Wordpet v5</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap">
 <style>
@@ -44,7 +44,7 @@
   #q:focus { border-color:var(--live); box-shadow:0 0 0 3px color-mix(in srgb, var(--live) 22%, transparent); }
 
   .terrarium { background:var(--stage); border:1px solid var(--line); border-radius:6px;
-               overflow:hidden; box-shadow:var(--shadow); max-width:384px; }
+               overflow:hidden; box-shadow:var(--shadow); max-width:432px; }
   #stage { display:block; width:100%; height:auto; image-rendering:pixelated; }
   .short { font:400 17px/1.4 "IBM Plex Sans",sans-serif; color:var(--ink); }
   .short b { font-weight:600; }
@@ -101,11 +101,11 @@
 
 <div class="page">
   <header class="mast">
-    <h1>word<b>pet</b><span>v4</span></h1>
-    <p>The picture, the sentence and the emoji all say the same thing. Eight slots now, plus a
-       place to stand, something worn, both hands full and a small companion. Read whichever view
-       you like, in whatever language you speak.
-       <a href="../v5/">v5</a> supersedes this with a new look; <a href="../v3/">v3</a>, <a href="../v2/">v2</a> and <a href="../">v1</a> are still here.</p>
+    <h1>word<b>pet</b><span>v5</span></h1>
+    <p>A new hand-drawn look and its own renderer: one soft blob, four tones of shading with a rim
+       light, big eyes with a highlight, tiny limbs. 48 animals, 10 hats, 10 things to wear, 23 things
+       to hold, 12 places to stand. The picture, the sentence and the emoji still all say the same thing.
+       <a href="../v4/">v4</a>, <a href="../v3/">v3</a>, <a href="../v2/">v2</a> and <a href="../">v1</a> are still here.</p>
   </header>
 
   <form class="entry" onsubmit="return false">
@@ -113,7 +113,7 @@
     <input id="q" value="emino" spellcheck="false" autocomplete="off" autocapitalize="off">
   </form>
 
-  <div class="terrarium"><canvas id="stage" width="384" height="384"></canvas></div>
+  <div class="terrarium"><canvas id="stage" width="432" height="432"></canvas></div>
 
   <section class="card ident">
     <div class="petname" id="petname"></div>
@@ -134,9 +134,9 @@
     <div class="col">
       <span class="k">At avatar size</span>
       <div class="strip">
-        <canvas class="thumb" width="64" height="64" style="width:28px;height:28px"></canvas>
-        <canvas class="thumb" width="64" height="64" style="width:44px;height:44px"></canvas>
-        <canvas class="thumb" width="64" height="64" style="width:72px;height:72px"></canvas>
+        <canvas class="thumb" width="72" height="72" style="width:28px;height:28px"></canvas>
+        <canvas class="thumb" width="72" height="72" style="width:44px;height:44px"></canvas>
+        <canvas class="thumb" width="72" height="72" style="width:72px;height:72px"></canvas>
       </div>
     </div>
     <div class="col">
@@ -154,10 +154,9 @@
     Nothing is drawn that the words do not name, and nothing is named that has no emoji. The tests
     rebuild the traits from the sentence alone and from the emoji alone and check both against the
     original, on 120,000 pets.
-    Four extra slots over v3 take this from 46 million identities to 2,305,071,267,840, so the
-    three-way rule no longer costs security. Forging one that survives a full reading takes about
-    115 days on one core, or 16 minutes on hardware ten thousand times faster, which is why the
-    seal is still here: with it, 71 years even at that rate.
+    v5 has its own renderer and a bigger vocabulary: 147,294,353,344,320 identities, 47 bits. Forging
+    one that survives a full reading is 24 years on one core, or 21 hours on hardware ten thousand
+    times faster. With the seal, 68 bits.
     <strong>A wrong pet means stop. A right pet is still not proof, so check the address too.</strong>
   </p>
 </div>
@@ -166,15 +165,12 @@
 <!--WORDPET2-->
 </script>
 <script>
-<!--WORDPET3-->
-</script>
-<script>
-<!--WORDPET4-->
+<!--WORDPET5-->
 </script>
 <script>
 (function () {
   'use strict';
-  var V4 = window.Wordpet4;
+  var V5 = window.Wordpet5;
   var SC = 6;
   var stage = document.getElementById('stage'), ctx = stage.getContext('2d');
   var input = document.getElementById('q');
@@ -182,7 +178,7 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function toCanvas(buf, cv) {
-    var c = cv.getContext('2d'), img = c.createImageData(V4.W, V4.H), d = img.data;
+    var c = cv.getContext('2d'), img = c.createImageData(V5.W, V5.H), d = img.data;
     for (var i = 0; i < buf.length; i++) {
       var v = buf[i];
       if (!v) continue;
@@ -191,21 +187,21 @@
       d[i * 4 + 2] = parseInt(v.slice(5, 7), 16);
       d[i * 4 + 3] = 255;
     }
-    c.clearRect(0, 0, V4.W, V4.H);
+    c.clearRect(0, 0, V5.W, V5.H);
     c.putImageData(img, 0, 0);
     return cv;
   }
   function sprite(t, phase, blink) {
     var cv = document.createElement('canvas');
-    cv.width = V4.W; cv.height = V4.H;
-    return toCanvas(V4.render(t, phase, blink), cv);
+    cv.width = V5.W; cv.height = V5.H;
+    return toCanvas(V5.render(t, phase, blink), cv);
   }
 
   var pet = null;
   function hatch(words) {
-    var t = V4.traitsFor(words);
+    var t = V5.traitsFor(words);
     pet = { t: t,
-      scene: toCanvas(V4.renderScene(t), Object.assign(document.createElement('canvas'), { width: V4.W, height: V4.H })),
+      scene: toCanvas(V5.renderScene(t), Object.assign(document.createElement('canvas'), { width: V5.W, height: V5.H })),
       frames: [0, 1, 2, 3].map(function (p) { return sprite(t, p, false); }),
       blinks: [0, 1, 2, 3].map(function (p) { return sprite(t, p, true); }) };
     document.getElementById('shortphrase').innerHTML = '';
@@ -239,13 +235,13 @@
       ph.appendChild(node);
     });
 
-    thumbs.forEach(function (cv) { toCanvas(V4.renderFull(t, 0, false), cv); });
+    thumbs.forEach(function (cv) { toCanvas(V5.renderFull(t, 0, false), cv); });
   }
 
   function draw(now) {
     var t = pet.t, still = reduce.matches;
     var f = still ? 0 : (now / 1050) % 1;
-    var m = V4.motion(t, f);
+    var m = V5.motion(t, f);
     var phase = Math.floor(f * 4) & 3;
     var blinkEvery = 2700 + (t.species % 7) * 340;
     var blink = !still && (now % blinkEvery) < 140;
@@ -253,9 +249,9 @@
 
     ctx.clearRect(0, 0, stage.width, stage.height);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(pet.scene, 0, 0, V4.W * SC, V4.H * SC);
+    ctx.drawImage(pet.scene, 0, 0, V5.W * SC, V5.H * SC);
     ctx.drawImage((blink ? pet.blinks : pet.frames)[phase],
-      sway * SC, Math.round(m.dy) * SC, V4.W * SC, V4.H * SC);
+      sway * SC, Math.round(m.dy) * SC, V5.W * SC, V5.H * SC);
 
     requestAnimationFrame(draw);
   }
@@ -266,12 +262,12 @@
                  'walter', 'zoe', '0x758a', 'blue-panda', 'midnight-koi', 'eminö'];
   var gal = document.getElementById('gal');
   samples.forEach(function (word) {
-    var t = V4.traitsFor(word);
+    var t = V5.traitsFor(word);
     var btn = document.createElement('button');
     btn.type = 'button';
     var cv = document.createElement('canvas');
-    cv.width = V4.W; cv.height = V4.H;
-    toCanvas(V4.renderFull(t, 0, false), cv);
+    cv.width = V5.W; cv.height = V5.H;
+    toCanvas(V5.renderFull(t, 0, false), cv);
     var em = document.createElement('span');
     em.className = 'em'; em.textContent = t.emojiGroups.slice(0, 4).map(function (g) { return g.emoji; }).join('');
     var cap = document.createElement('span');

@@ -3,37 +3,37 @@
 Deterministic pixel pets from words. The same string always draws the same creature, on every
 machine, in every browser, forever.
 
-Four versions ship side by side. None replaces the one before it.
+Five versions ship side by side. None replaces the one before it.
 
-| | v1 | v2 | v3 | v4 |
-| --- | --- | --- | --- | --- |
-| Demo | **[/](https://eminogrande.github.io/wordpet/)** | **[/v2](https://eminogrande.github.io/wordpet/v2/)** | **[/v3](https://eminogrande.github.io/wordpet/v3/)** | **[/v4](https://eminogrande.github.io/wordpet/v4/)** |
-| Module | `pixelpet.js` | `wordpet2.js` | `wordpet3.js` | `wordpet4.js` |
-| Frame | 32 x 32 | 48 x 48 | 48 x 48 | 64 x 64 with a scene |
-| Slots | none named | 9 | 5 | 8 |
-| Identities | 445,906,944,000 | 559,054,848 | 46,559,232 | 2,305,071,267,840 |
-| With the code or seal | n/a | 2.47e15 | 1.31e14 | 5.18e18 |
-| Good for | avatars | verifying in English | verifying in any language | **the one to use** |
+| | v1 | v2 | v3 | v4 | v5 |
+| --- | --- | --- | --- | --- | --- |
+| Demo | [/](https://eminogrande.github.io/wordpet/) | [/v2](https://eminogrande.github.io/wordpet/v2/) | [/v3](https://eminogrande.github.io/wordpet/v3/) | [/v4](https://eminogrande.github.io/wordpet/v4/) | **[/v5](https://eminogrande.github.io/wordpet/v5/)** |
+| Module | `pixelpet.js` | `wordpet2.js` | `wordpet3.js` | `wordpet4.js` | `wordpet5.js` |
+| Frame | 32² | 48² | 48² | 64² + scene | 72² + scene |
+| Animals | generic | 32 | 32 | 32 | **48** |
+| Identities | 4.5e11 | 5.6e8 | 4.7e7 | 2.3e12 | **1.47e14** |
+| With code or seal | n/a | 2.47e15 | 1.31e14 | 5.18e18 | **2.48e20** |
+| Good for | avatars | English | any language | any language | **the one to use** |
 
-![v4 pets](preview4.png)
+![v5 pets](preview5.png)
+![the 48 species](preview5-species.png)
 
 ```js
-const t = Wordpet4.traitsFor('emino');
+const t = Wordpet5.traitsFor('emino');
 t.petName      // 'Green Seal'
 t.shortPhrase  // 'Green Seal in the orange helmet, in space'
-t.emojiLine    // '🟢🦭 🟠🪖 🟡🧣 👁️ 🚫 ☔🔑 🐦 🌌'
-t.phrase       // 'the green seal, orange helmet, yellow scarf, open eyes, bare feet,
-               //  holding an umbrella and a key, with a bird, in space'
-t.seal         // ['🏀','❄','💎']
-Wordpet4.renderFull(t, 0, false);   // 4096 hex colours or nulls, scene included
-Wordpet4.parseEmoji(t.emojiLine);   // the traits, read back out of the emoji alone
+t.emojiLine    // '🟢🦎 🟠🎩 🚫 🥱 🟣⛸️ 🔨✨ 🕷️ 🌊'
+t.phrase       // 'the green lizard, orange top hat, wearing nothing, sleepy eyes,
+               //  purple ice skates, holding a hammer and a wand, with a spider, underwater'
+Wordpet5.renderFull(t, 0, false);   // 5184 hex colours or nulls, scene included
+Wordpet5.parseEmoji(t.emojiLine);   // the traits, read back out of the emoji alone
 ```
 
 ## Which one to use
 
-**v4.** It keeps v3's rule that the picture, the sentence and the emoji all say the same thing, and
-it has enough slots that the rule no longer costs security. v3 is the same idea at half the size,
-v2 trades language independence for a bigger space, v1 is decoration.
+**v5.** Same rule as v3 and v4, a much larger vocabulary, and its own renderer with a softer, cuter
+look. v4 is the same idea in the older flat style, v3 is half the size, v2 trades language
+independence for a bigger space, v1 is decoration.
 
 ## Why v2 exists
 
@@ -88,6 +88,28 @@ and it is why the seal exists.
 **The seal** is three emoji drawn from a pool of 142 that name no trait, read from digest fields
 the sentence never touches. It is presented separately in the UI because it is a different kind of
 thing. Identity and seal together are 46.9 bits.
+
+## Why v5 exists
+
+v4 was correct and a bit stiff. v5 forks the renderer, which v2, v3 and v4 could not do without
+changing their own output, and spends the freedom on how the pets look:
+
+- **One soft blob.** The head is nearly as wide as the body and overlaps it heavily. No neck unless
+  the animal has one.
+- **Volume, not flat fill.** Every material carries five tones. A pass walks each vertical run of a
+  surface and ramps it from a rim light at the top down to a shadow, then darkens the trailing edge
+  of each row because the light sits upper-left.
+- **Big eyes.** Optional dark mask, white sclera, wide pupil, a two-pixel highlight and a small
+  counter-highlight. Blush unless the species wears a mask.
+- **Tiny limbs.** Small feet and short arms against a large body is what reads as young.
+
+The vocabulary grew with it: 48 animals, 10 hats, 10 things to wear, 10 kinds of footwear, 23 things
+to hold in two hands, 12 companions, 12 places. That is 147,294,353,344,320 identities, 47.1 bits,
+and 67.8 bits with the seal. A full forgery is 24 years on one core and 21 hours on hardware ten
+thousand times faster.
+
+v5 depends on v2 only for `sha256` and `normalize`, which are pure. Its renderer shares no code with
+the earlier versions, and a test asserts it never reaches for v3 or v4.
 
 ## Why v4 exists
 
@@ -155,7 +177,7 @@ picture teaches people to ignore the picture:
 
 ## Determinism
 
-All four use only integer arithmetic, `Math.imul`, `Math.round`, `Math.abs` and division by
+All five use only integer arithmetic, `Math.imul`, `Math.round`, `Math.abs` and division by
 powers of two in the drawing path. There is deliberately no `Math.sin`, `Math.cos`, `Math.sqrt` or
 `**`, because those are not required to be bit-identical across JavaScript engines, and one
 unit-in-the-last-place of difference flips a pixel after rounding. The one curved tail in v1 is
@@ -167,22 +189,22 @@ against Node's `crypto` on every block boundary and on non-ASCII input.
 **Normalisation differs between versions, on purpose.**
 
 - v1 folds to `[a-z0-9-]`, so `eminö` and `emino` are one pet. Fine for a friendly avatar.
-- v2, v3 and v4 fold case and punctuation only and keep letters as they are, so `eminö`, `emino` and
+- v2 onward fold case and punctuation only and keep letters as they are, so `eminö`, `emino` and
   `eminо` with a Cyrillic o are three different people with three different pets. For a lookalike
   check, collapsing them would hide exactly the attack you are looking for.
 
 ## Threat model
 
-Measured, not estimated. Reproduce with `node test.js` through `node test4.js`, and `node grind.js`.
+Measured, not estimated. Reproduce with `node test.js` through `node test5.js`, and `node grind.js`.
 
 ### Accidental collisions
 
-| Users | v1 | v2 | v3 | v4 |
-| --- | --- | --- | --- | --- |
-| 10,000 | 0.00% | 0.00% | 0.02% | 0.00% |
-| 100,000 | 0.00% | 0.02% | 0.21% | 0.00% |
-| 1,000,000 | 0.00% | 0.18% | 2.12% | 0.00% |
-| 10,000,000 | 0.00% | 1.77% | 19.33% | 0.00% |
+| Users | v1 | v2 | v3 | v4 | v5 |
+| --- | --- | --- | --- | --- | --- |
+| 10,000 | 0.00% | 0.00% | 0.02% | 0.00% | 0.00% |
+| 100,000 | 0.00% | 0.02% | 0.21% | 0.00% | 0.00% |
+| 1,000,000 | 0.00% | 0.18% | 2.12% | 0.00% | 0.00% |
+| 10,000,000 | 0.00% | 1.77% | 19.33% | 0.00% | 0.00% |
 
 v3's column is the honest cost of five slots: at ten million users, one in five would share an
 identity with somebody. v4 fixes that. One million sampled usernames gave 999,970 distinct v4
@@ -215,9 +237,11 @@ GPU grinder:
 | v3, the full three-way identity | 46,559,232 | 2.5 min | instant |
 | v4, colour and species and scene | 2,304 | instant | instant |
 | v4, the full three-way identity | 2.31e12 | 115 days | 16.6 min |
+| v5, the full three-way identity | 1.47e14 | 24 years | 21 h |
 | **v3, identity and seal** | **1.31e14** | **13.4 years** | **11.7 h** |
 | **v2, phrase and emoji code together** | **2.47e15** | **227 years** | **8.3 days** |
 | **v4, identity and seal** | **5.18e18** | **7.1e5 years** | **71 years** |
+| **v5, identity and seal** | **2.48e20** | **4.0e7 years** | **4,000 years** |
 
 That last row is the only one in this table that is safe to gate a payment on, and only if the
 person actually reads both the sentence and the code. A glance is worth nothing no matter which
@@ -263,17 +287,19 @@ from one list, so they cannot drift apart.
 | `wordpet2.js` | v2 algorithm and the shared renderer |
 | `wordpet3.js` | v3 vocabulary, emoji transcription and parsers; needs `wordpet2.js` |
 | `wordpet4.js` | v4 scenes, worn items, both hands, companions; needs `wordpet2.js` and `wordpet3.js` |
+| `wordpet5.js` | v5 renderer, style and vocabulary; needs `wordpet2.js` for the hash only |
 | `page*.html` | UI templates, each with inlining markers |
 | `build.js` | writes `artifact*.html` and `docs/**/index.html` |
-| `test.js` … `test4.js` | determinism, agreement, round trips, collision maths |
+| `test.js` … `test5.js` | determinism, agreement, round trips, collision maths |
 | `grind.js` | v1 deliberate-forgery cost |
 | `preview*.js` | contact sheets |
 
 ```
-node test.js && node test2.js && node test3.js && node test4.js
+node test.js && node test2.js && node test3.js && node test4.js && node test5.js
 node grind.js                                   # v1 forgery cost
 node preview.js && node preview2.js && node preview3.js && node preview4.js
-node build.js                                   # rebuild all four pages
+node preview5.js && node preview5.js preview5-species.png species
+node build.js                                   # rebuild all five pages
 ```
 
 ## Licence
