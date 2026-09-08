@@ -99,7 +99,7 @@
     <h1>word<b>pet</b><span>v2</span></h1>
     <p>Every part of the pet has a name, so you can say your identity out loud instead of
        comparing pixels. The picture and the sentence come from the same hash and can never
-       disagree. <a href="../">Version 1 is still here.</a></p>
+       disagree. <a href="../v3/">v3 adds a matching emoji line</a>; <a href="../">v1</a> is still here.</p>
   </header>
 
   <form class="entry" onsubmit="return false">
@@ -331,6 +331,20 @@ function hsl(h, s, l) {
 }
 function shade(col, dl) { return hsl(col.h, col.s, col.l + dl); }
 
+/* the full colour set a drawing needs, from three palette indices */
+function paletteFor(bodyIdx, hatIdx, shoeIdx) {
+  var base = COLOURS[bodyIdx], hc = COLOURS[hatIdx], sc = COLOURS[shoeIdx];
+  return {
+    body: shade(base, 0), light: shade(base, 13), dark: shade(base, -13),
+    out: hsl(base.h, Math.min(base.s, 55), Math.max(8, base.l - 42)),
+    pale: shade(base, base.l > 70 ? -22 : 30),
+    hat: shade(hc, 0), hatD: shade(hc, -16), hatL: shade(hc, 16),
+    shoe: shade(sc, 0), shoeD: shade(sc, -16),
+    ink: '#141119', white: '#ffffff', gold: '#f5c542', steel: '#c6ced9',
+    wood: '#9a6b43', leaf: '#4c9a52', red: '#d8443c', sky: '#79c0f0'
+  };
+}
+
 function traitsFor(input) {
   var name = normalize(input), d = sha256(name), i;
   var hex = '';
@@ -362,16 +376,8 @@ function traitsFor(input) {
   /* a species with no drawn feet is never described as wearing shoes */
   if (SPECIES[t.species].limb === 1 || SPECIES[t.species].sits) t.shoes = 0;
 
+  t.col = paletteFor(t.colour, t.hatColour, t.shoeColour);
   var base = COLOURS[t.colour], hc = COLOURS[t.hatColour], sc = COLOURS[t.shoeColour];
-  t.col = {
-    body: shade(base, 0), light: shade(base, 13), dark: shade(base, -13),
-    out: hsl(base.h, Math.min(base.s, 55), Math.max(8, base.l - 42)),
-    pale: shade(base, base.l > 70 ? -22 : 30),
-    hat: shade(hc, 0), hatD: shade(hc, -16), hatL: shade(hc, 16),
-    shoe: shade(sc, 0), shoeD: shade(sc, -16),
-    ink: '#141119', white: '#ffffff', gold: '#f5c542', steel: '#c6ced9',
-    wood: '#9a6b43', leaf: '#4c9a52', red: '#d8443c', sky: '#79c0f0'
-  };
 
   var sp = SPECIES[t.species];
   t.words = {
@@ -665,7 +671,7 @@ function motion(t, f) {
 
 var api = {
   W: W, H: H, version: 2, normalize: normalize, sha256: sha256,
-  traitsFor: traitsFor, render: render, motion: motion, phraseOf: phraseOf, segmentsOf: segmentsOf,
+  traitsFor: traitsFor, render: render, motion: motion, paletteFor: paletteFor, phraseOf: phraseOf, segmentsOf: segmentsOf,
   COLOURS: COLOURS, SPECIES: SPECIES, PATTERNS: PATTERNS, EYES: EYES,
   HATS: HATS, SHOES: SHOES, ITEMS: ITEMS, MOVES: MOVES, EMOJI: EMOJI, ACCENTS: ACCENTS
 };

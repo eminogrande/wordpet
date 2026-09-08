@@ -3,10 +3,12 @@
    docs/index.html (v1), docs/v2/index.html   standalone documents served by GitHub Pages */
 var fs = require('fs');
 
-function build(template, algoFile, marker, fragment, page) {
-  var src = fs.readFileSync(template, 'utf8'), algo = fs.readFileSync(algoFile, 'utf8');
-  if (src.indexOf(marker) === -1) throw new Error(template + ' lost its ' + marker + ' marker');
-  var inlined = src.replace(marker, algo);
+function build(template, parts, fragment, page) {
+  var inlined = fs.readFileSync(template, 'utf8');
+  parts.forEach(function (p) {
+    if (inlined.indexOf(p[0]) === -1) throw new Error(template + ' lost its ' + p[0] + ' marker');
+    inlined = inlined.replace(p[0], fs.readFileSync(p[1], 'utf8'));
+  });
   fs.writeFileSync(fragment, inlined);
 
   var cut = inlined.indexOf('</style>') + '</style>'.length;
@@ -18,5 +20,7 @@ function build(template, algoFile, marker, fragment, page) {
   console.log('built ' + fragment + ' and ' + page);
 }
 
-build('page.html',  'pixelpet.js',  '<!--PIXELPET-->',  'artifact.html',  'docs/index.html');
-build('page2.html', 'wordpet2.js',  '<!--WORDPET2-->',  'artifact2.html', 'docs/v2/index.html');
+build('page.html',  [['<!--PIXELPET-->', 'pixelpet.js']], 'artifact.html',  'docs/index.html');
+build('page2.html', [['<!--WORDPET2-->', 'wordpet2.js']],  'artifact2.html', 'docs/v2/index.html');
+build('page3.html', [['<!--WORDPET2-->', 'wordpet2.js'], ['<!--WORDPET3-->', 'wordpet3.js']],
+                    'artifact3.html', 'docs/v3/index.html');
