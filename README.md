@@ -5,6 +5,94 @@ machine, in every browser, forever.
 
 Five versions ship side by side. None replaces the one before it.
 
+## Logs
+
+- [CHANGELOG.md](CHANGELOG.md)
+- [PROMPTLOG.md](PROMPTLOG.md)
+
+## Status
+
+| Field | Value |
+| --- | --- |
+| Version | v0.1.0 |
+| Date | 2026-10-14 |
+| Updated by | hermes-agent for emino |
+| Default branch HEAD | `6663b73` (main) |
+| Runs on | GitHub Pages, served from `main` `/docs`: https://eminogrande.github.io/wordpet/ |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  P1["pixelpet.js v1"]
+  W2["wordpet2.js v2 + sha256 + normalize"]
+  W3["wordpet3.js v3"]
+  W4["wordpet4.js v4"]
+  W5["wordpet5.js v5"]
+  W3 --> W2
+  W4 --> W2
+  W4 --> W3
+  W5 -->|"hash only"| W2
+  T["page*.html templates"] --> B["build.js"]
+  P1 --> B
+  W2 --> B
+  W3 --> B
+  W4 --> B
+  W5 --> B
+  B --> A["artifact*.html fragments"]
+  B --> D["docs/**/index.html"]
+  D --> GP["GitHub Pages eminogrande.github.io/wordpet"]
+  TS["test*.js, test-pages.js"] -.-> W5
+  PV["preview*.js"] -.-> PNG["preview*.png"]
+```
+
+## User flow
+
+```mermaid
+sequenceDiagram
+  participant U as User or app
+  participant L as Wordpet5 module
+  U->>L: traitsFor name
+  L->>L: normalize, sha256, pick slots
+  L-->>U: traits, petName, shortPhrase, phrase, emojiLine
+  U->>L: renderFull traits, phase, blink
+  L-->>U: 72x72 hex colours or null
+  U->>U: show pet, sentence, emoji, seal
+  U->>L: parseEmoji or parsePhrase from the other party
+  L-->>U: traits to compare
+  U->>U: mismatch means stop
+```
+
+## Components
+
+| Component | Path | Role |
+| --- | --- | --- |
+| v1 algorithm | `pixelpet.js` | generic pixel avatar, `window.PixelPet` |
+| v2 algorithm | `wordpet2.js` | phrase pets, shared renderer, `sha256`, `normalize` |
+| v3 algorithm | `wordpet3.js` | three-way identity, emoji transcription, parsers; needs v2 |
+| v4 algorithm | `wordpet4.js` | scenes, worn items, both hands, companions; needs v2 and v3 |
+| v5 algorithm | `wordpet5.js` | own renderer, 48 animals; needs v2 for the hash only |
+| Page templates | `page.html`, `page2.html` ... `page5.html` | UI with inlining markers |
+| Build | `build.js` | writes `artifact*.html` and `docs/**/index.html` |
+| Built pages | `docs/index.html`, `docs/v2/` ... `docs/v5/` | GitHub Pages site |
+| Artifact fragments | `artifact.html` ... `artifact5.html` | body-only fragments for the Claude Artifact host |
+| Tests | `test.js` ... `test5.js`, `test-pages.js` | determinism, round trips, collision maths, pages |
+| Forgery bench | `grind.js` | v1 deliberate-forgery cost |
+| Previews | `preview*.js`, `preview*.png` | contact sheets |
+
+## Run
+
+No dependencies, no `package.json`, no build step for the modules. Needs Node.
+
+```
+node test.js && node test2.js && node test3.js && node test4.js && node test5.js
+node test-pages.js
+node build.js
+node preview5.js && node preview5.js preview5-species.png species
+```
+
+Env vars read by the code: none. CLI args: `preview.js`, `preview4.js`, `preview5.js` take an output path as the first argument.
+
 | | v1 | v2 | v3 | v4 | v5 |
 | --- | --- | --- | --- | --- | --- |
 | Demo | [/](https://eminogrande.github.io/wordpet/) | [/v2](https://eminogrande.github.io/wordpet/v2/) | [/v3](https://eminogrande.github.io/wordpet/v3/) | [/v4](https://eminogrande.github.io/wordpet/v4/) | **[/v5](https://eminogrande.github.io/wordpet/v5/)** |
@@ -20,8 +108,8 @@ Five versions ship side by side. None replaces the one before it.
 
 ```js
 const t = Wordpet5.traitsFor('emino');
-t.petName      // 'Green Seal'
-t.shortPhrase  // 'Green Seal in the orange helmet, in space'
+t.petName      // 'Green Lizard'
+t.shortPhrase  // 'Green Lizard in the orange top hat, underwater'
 t.emojiLine    // '🟢🦎 🟠🎩 🚫 🥱 🟣⛸️ 🔨✨ 🕷️ 🌊'
 t.phrase       // 'the green lizard, orange top hat, wearing nothing, sleepy eyes,
                //  purple ice skates, holding a hammer and a wand, with a spider, underwater'
@@ -267,11 +355,11 @@ const Wordpet2 = require('./wordpet2.js');
 | `render(traits, phase, blink)` | flat array of hex strings or `null`, `W * H` long |
 | `motion(traits, f)` | `{dx, dy, sx, sy, rot}` for animation frame `f` in `0..1` |
 | `segmentsOf(traits)` | `[{text, trait, slot}]`, the sentence split into slots for highlighting |
-| `emojiGroupsOf(traits)` | v3 and v4: `[{slot, emoji, says}]`, one group per sentence slot |
-| `parsePhrase(str)` / `parseEmoji(line)` | v3 and v4: read the traits back out of either view |
-| `renderScene(traits)` / `renderFull(...)` | v4 only: the background layer, and both layers merged |
+| `emojiGroupsOf(traits)` | v3, v4 and v5: `[{slot, emoji, says}]`, one group per sentence slot |
+| `parsePhrase(str)` / `parseEmoji(line)` | v3, v4 and v5: read the traits back out of either view |
+| `renderScene(traits)` / `renderFull(...)` | v4 and v5: the background layer, and both layers merged |
 | `normalize(name)` | the canonical string that gets hashed |
-| `sha256(str)` | the raw 32-byte digest |
+| `sha256(str)` | v2 only: the raw 32-byte digest |
 
 v1 exposes the same shape as `window.PixelPet` minus the phrase parts. `phase` is `0..3` and drives
 limbs, tail and hat wobble; ignore it and `blink` for a still avatar.
